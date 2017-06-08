@@ -6,8 +6,6 @@ import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
-import cn.edu.nju.gitstudio.util.Consts;
-
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
@@ -20,14 +18,14 @@ public class MainActivity extends AppCompatActivity {
 
         mMyApplication = (MyApplication) getApplication();
         SharedPreferences sp = getSharedPreferences("userInfo", Activity.MODE_PRIVATE);
-        if (!sp.contains("username") || !sp.contains("password") || !sp.contains("userType")) {
+        if (!sp.contains("username") || !sp.contains("password")) {
             //User do not login, go to login form
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
         } else {
-            mMyApplication.setUsername(sp.getString("username", null));
-            mMyApplication.setPassword(sp.getString("password", null));
-            mMyApplication.setUserType(sp.getInt("userType", Consts.STUDENT_TYPE));
+            String username = sp.getString("username", null);
+            String password = sp.getString("password", null);
+            // TODO: 17-6-8 此处依然需要登录，需要创建一个异步线程，此时主界面显示logo界面即可。若登录失败则跳转至LoginActivity，成功则吧logo界面换成有内容的主界面。
         }
 
 
