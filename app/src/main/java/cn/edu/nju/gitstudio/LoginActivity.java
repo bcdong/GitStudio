@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -145,12 +146,13 @@ public class LoginActivity extends AppCompatActivity {
             if (loginResult.getStatus() == ResultStatus.SUCCESS) {
                 //set user info to application context
                 User user = loginResult.getUser();
-                MyApplication application = (MyApplication) getApplication();
-                application.setCurrentUser(user);
-
-                //store username and password to shared preferences
                 String username = user.getUsername();
                 String password = loginResult.getPassword();
+
+                MyApplication application = (MyApplication) getApplication();
+                application.setCurrentUser(user);
+                application.setAuthToken(Base64.encodeToString((username+":"+password).getBytes(), Base64.DEFAULT));
+
                 // store username and password to shared preferences
                 SharedPreferences sp = getSharedPreferences("userInfo", Activity.MODE_PRIVATE);
                 sp.edit().putString("username", username)

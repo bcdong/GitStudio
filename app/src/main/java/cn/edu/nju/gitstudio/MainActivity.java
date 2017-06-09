@@ -6,12 +6,29 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.AccountHeaderBuilder;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
+import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SectionDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IProfile;
+import com.mikepenz.materialdrawer.model.interfaces.Nameable;
+
 import java.io.IOException;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import cn.edu.nju.gitstudio.pojo.User;
 import cn.edu.nju.gitstudio.type.LoginResult;
 import cn.edu.nju.gitstudio.type.ResultStatus;
@@ -21,20 +38,38 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final int REQUEST_LOGIN_CODE = 0;
 
+    @BindView(R.id.toolbar) Toolbar mToolbar;
+
+    private AccountHeader mAccountHeader;
+    private Drawer mDrawer;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
+        setSupportActionBar(mToolbar);
+        initDrawer(savedInstanceState);
+
+        //登录
         SharedPreferences sp = getSharedPreferences("userInfo", Activity.MODE_PRIVATE);
         if (!sp.contains("username") || !sp.contains("password")) {
             //User do not login, go to login form
             Intent intent = LoginActivity.newIntent(this);
             startActivityForResult(intent, REQUEST_LOGIN_CODE);
         } else {
-            String username = sp.getString("username", null);
-            String password = sp.getString("password", null);
-            new UserLoginTask().execute(username, password);
+            MyApplication myApplication = (MyApplication) getApplication();
+            User user = myApplication.getCurrentUser();
+            if (user == null) {         //APP刚刚启动，需要联网登录
+                String username = sp.getString("username", null);
+                String password = sp.getString("password", null);
+                new UserLoginTask().execute(username, password);
+            } else {                    //用户已经登录，可能时屏幕旋转或者按home放入后台后又回来
+                // 在initDrawer中已经处理好了，此处不需要处理
+                // do nothing
+            }
         }
 
     }
@@ -53,10 +88,168 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setupMainView() {
         Log.i(TAG, "Draw main view after login success");
-        TextView textView = (TextView) findViewById(R.id.test);
-        MyApplication application = (MyApplication) getApplication();
-        textView.setText(application.getCurrentUser().getName());
-        // TODO: 17-6-8 tbd
+        MyApplication myApplication = (MyApplication) getApplication();
+        User user = myApplication.getCurrentUser();
+        //有可能是先退出登录再登录进来的，需要先移除原来的item
+        mAccountHeader.removeProfileByIdentifier(0);
+        mDrawer.removeAllItems();
+
+        IProfile profile = new ProfileDrawerItem()
+                .withName(user.getName())
+                .withEmail(user.getEmail())
+                .withIcon(R.drawable.avatar)
+                .withIdentifier(0);
+        mAccountHeader.addProfiles(profile);
+
+        if (user.getType().equals(getString(R.string.user_type_teacher))) {
+            mDrawer.addItems(
+                    new PrimaryDrawerItem().withName(R.string.drawer_teacher_all_classes).withIdentifier(100),
+                    new PrimaryDrawerItem().withName(R.string.drawer_teacher_homework).withIdentifier(101),
+                    new PrimaryDrawerItem().withName(R.string.drawer_teacher_exercise).withIdentifier(102),
+                    new PrimaryDrawerItem().withName(R.string.drawer_teacher_exam).withIdentifier(103),
+                    new SectionDrawerItem().withName(R.string.drawer_about_account),
+                    new SecondaryDrawerItem().withName(R.string.drawer_logout).withIdentifier(300).withSelectable(false)
+            );
+            mDrawer.setSelection(100, false);
+        } else if (user.getType().equals(getString(R.string.user_type_student))) {
+            mDrawer.addItems(
+                    new PrimaryDrawerItem().withName(R.string.drawer_student_homework).withIdentifier(200),
+                    new PrimaryDrawerItem().withName(R.string.drawer_student_exercise).withIdentifier(201),
+                    new PrimaryDrawerItem().withName(R.string.drawer_student_exam).withIdentifier(202),
+                    new SectionDrawerItem().withName(R.string.drawer_about_account),
+                    new PrimaryDrawerItem().withName(R.string.drawer_logout).withIdentifier(300).withSelectable(false)
+            );
+            mDrawer.setSelection(200, false);
+        }
+
+        // TODO: 17-6-9 设置默认fragment
+    }
+
+    /**
+     * 初始化左侧抽屉界面
+     */
+    private void initDrawer(Bundle savedInstanceState) {
+        Log.d(TAG, "Enter method initDrawer");
+        //如果已经登录则实例化drawer中的item，否则不创建item，等待登录线程登录成功后再修改drawer
+        MyApplication myApplication = (MyApplication) getApplication();
+        User user = myApplication.getCurrentUser();
+
+        AccountHeaderBuilder headerBuilder = new AccountHeaderBuilder()
+                .withActivity(this)
+                .withTranslucentStatusBar(true)
+                .withHeaderBackground(R.drawable.header)
+                .withSavedInstance(savedInstanceState);
+        if (user != null) {
+            IProfile profile = new ProfileDrawerItem()
+                    .withName(user.getName())
+                    .withEmail(user.getEmail())
+                    .withIcon(R.drawable.avatar)
+                    .withIdentifier(0);
+            headerBuilder.addProfiles(profile);
+        }
+        mAccountHeader = headerBuilder.build();
+
+        DrawerBuilder drawerBuilder = new DrawerBuilder()
+                .withActivity(this)
+                .withToolbar(mToolbar)
+                .withTranslucentStatusBar(true)
+                .withHasStableIds(true)
+                .withAccountHeader(mAccountHeader)
+                .withSavedInstance(savedInstanceState);
+
+        if (user != null) {
+            Log.d(TAG, "initDrawer: user != null");
+
+            if (user.getType().equals(getString(R.string.user_type_teacher))) {
+                drawerBuilder.addDrawerItems(
+                    new PrimaryDrawerItem().withName(R.string.drawer_teacher_all_classes).withIdentifier(100),
+                    new PrimaryDrawerItem().withName(R.string.drawer_teacher_homework).withIdentifier(101),
+                    new PrimaryDrawerItem().withName(R.string.drawer_teacher_exercise).withIdentifier(102),
+                    new PrimaryDrawerItem().withName(R.string.drawer_teacher_exam).withIdentifier(103),
+                    new SectionDrawerItem().withName(R.string.drawer_about_account),
+                    new SecondaryDrawerItem().withName(R.string.drawer_logout).withIdentifier(300).withSelectable(false)
+                );
+                //此处不要setSelection，因为前面有.withSavedInstance(savedInstanceState)，旋转屏幕时
+                //会通过savedInstance设置保存下来的选项
+            } else if (user.getType().equals(getString(R.string.user_type_student))) {
+                drawerBuilder.addDrawerItems(
+                    new PrimaryDrawerItem().withName(R.string.drawer_student_homework).withIdentifier(200),
+                    new PrimaryDrawerItem().withName(R.string.drawer_student_exercise).withIdentifier(201),
+                    new PrimaryDrawerItem().withName(R.string.drawer_student_exam).withIdentifier(202),
+                    new SectionDrawerItem().withName(R.string.drawer_about_account),
+                    new PrimaryDrawerItem().withName(R.string.drawer_student_exam).withIdentifier(300).withSelectable(false)
+                );
+            }
+        } else {
+            Log.d(TAG, "initDrawer: user == null");
+        }
+
+        drawerBuilder.withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+            @Override
+            public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                if (drawerItem == null) {
+                    return false;
+                }
+
+                // TODO: 17-6-9 delete
+                Toast.makeText(getApplication(), ((Nameable)drawerItem).getName().getText(MainActivity.this), Toast.LENGTH_SHORT).show();
+
+
+                if (drawerItem.getIdentifier() == 100) {            //老师-所有班级
+
+                } else if (drawerItem.getIdentifier() == 101) {     //老师-作业
+
+                } else if (drawerItem.getIdentifier() == 102) {     //老师-练习
+
+                } else if (drawerItem.getIdentifier() == 103) {     //老师-考试
+
+                } else if (drawerItem.getIdentifier() == 200) {     //学生-作业
+
+                } else if (drawerItem.getIdentifier() == 201) {     //学生-练习
+
+                } else if (drawerItem.getIdentifier() == 202) {     //学生-考试
+
+                } else if (drawerItem.getIdentifier() == 300) {     //退出登录
+                    logout();
+                }
+
+                return true;
+            }
+        });
+        mDrawer = drawerBuilder.build();
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        Log.i(TAG, "Enter onSaveInstanceState");
+        if (mDrawer != null && mAccountHeader != null){
+            outState = mDrawer.saveInstanceState(outState);
+            outState = mAccountHeader.saveInstanceState(outState);
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mDrawer != null && mDrawer.isDrawerOpen()) {
+            mDrawer.closeDrawer();
+        }
+        super.onBackPressed();
+    }
+
+    private void logout() {
+        Log.i(TAG, "Logout");
+        mDrawer.closeDrawer();
+        SharedPreferences sp = getSharedPreferences("userInfo", Activity.MODE_PRIVATE);
+        sp.edit().remove("username")
+                .remove("password")
+                .apply();
+        MyApplication myApplication = (MyApplication) getApplication();
+        myApplication.setCurrentUser(null);
+
+        Intent intent = LoginActivity.newIntent(this);
+        startActivityForResult(intent, REQUEST_LOGIN_CODE);
     }
 
     private class UserLoginTask extends AsyncTask<String, Void, LoginResult> {
@@ -106,8 +299,10 @@ public class MainActivity extends AppCompatActivity {
                 User user = loginResult.getUser();
                 MyApplication application = (MyApplication) getApplication();
                 application.setCurrentUser(user);
+                String username = user.getUsername();
+                String password = loginResult.getPassword();
+                application.setAuthToken(Base64.encodeToString((username+":"+password).getBytes(), Base64.DEFAULT));
 
-                // TODO: 17-6-8 此处正式进入主界面，需要重新布局
                 setupMainView();
 
             } else if (loginResult.getStatus() == ResultStatus.NETWORK_ERROR){

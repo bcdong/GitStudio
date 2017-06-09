@@ -1,6 +1,7 @@
 package cn.edu.nju.gitstudio;
 
 import android.app.Application;
+import android.util.Base64;
 
 import cn.edu.nju.gitstudio.pojo.User;
 
@@ -10,6 +11,7 @@ import cn.edu.nju.gitstudio.pojo.User;
 
 public class MyApplication extends Application {
     private User currentUser;
+    private String authToken;
 
     public User getCurrentUser() {
         return currentUser;
@@ -17,5 +19,13 @@ public class MyApplication extends Application {
 
     public void setCurrentUser(User currentUser) {
         this.currentUser = currentUser;
+    }
+
+    public String getAuthToken() {
+        return authToken;
+    }
+
+    public void setAuthToken(String authToken) {
+        this.authToken = authToken;
     }
 }

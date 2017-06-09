@@ -1,6 +1,5 @@
 package cn.edu.nju.gitstudio.util;
 
-import android.util.Base64;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -25,7 +24,6 @@ public class NetworkHelper {
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static NetworkHelper instance;
 
-    private String authToken;
     private final OkHttpClient client;
     private final Gson gson;
 
@@ -37,7 +35,6 @@ public class NetworkHelper {
     }
 
     private NetworkHelper() {
-        authToken = null;
         client = new OkHttpClient.Builder()
                 .connectTimeout(10, TimeUnit.SECONDS)
                 .writeTimeout(10, TimeUnit.SECONDS)
@@ -62,13 +59,10 @@ public class NetworkHelper {
         if (res == null || res.trim().isEmpty()) {
             return null;
         }
-
-        //登录成功要设置token
-        authToken = Base64.encodeToString((username+":"+password).getBytes(), Base64.DEFAULT);
         return gson.fromJson(res, User.class);
     }
 
-    private String getRequest(String path) throws IOException {
+    private String getRequest(String path, String authToken) throws IOException {
         Request.Builder builder = new Request.Builder()
                 .url(baseUrl+path);
 
