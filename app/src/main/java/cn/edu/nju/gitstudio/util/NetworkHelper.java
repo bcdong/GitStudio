@@ -21,7 +21,7 @@ import okhttp3.Response;
 
 public class NetworkHelper {
     private static final String TAG = "NetworkHelper";
-    private static final String baseUrl = "http://115.29.184.56:8090/api/";
+    private static final String baseUrl = "http://115.29.184.56:8090/api";
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static NetworkHelper instance;
 
@@ -56,7 +56,7 @@ public class NetworkHelper {
     public User login(String username, String password) throws IOException {
         String identity = "{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}";
         Log.i(TAG, "Login for user: " + username);
-        String res = postRequest("user/auth/", identity);
+        String res = postRequest("/user/auth", identity);
 
         //用户名或密码错误，返回空字符串
         if (res == null || res.trim().isEmpty()) {

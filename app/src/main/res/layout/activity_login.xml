@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     tools:context="cn.edu.nju.gitstudio.LoginActivity">
+    <!--android:fitsSystemWindows="true"-->
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -44,6 +44,7 @@
                 android:id="@+id/activity_login_input_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:padding="12dp"
                 android:inputType="textPassword"
                 android:hint="@string/prompt_password"/>
         </android.support.design.widget.TextInputLayout>
@@ -52,6 +53,7 @@
             android:id="@+id/activity_login_btn_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="@string/prompt_btn_login"
             android:layout_marginTop="24dp"
             android:layout_marginBottom="24dp"/>
 

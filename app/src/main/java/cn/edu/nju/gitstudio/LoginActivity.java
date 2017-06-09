@@ -1,10 +1,15 @@
 package cn.edu.nju.gitstudio;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -21,12 +26,15 @@ import cn.edu.nju.gitstudio.util.NetworkHelper;
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
 
+    public static Intent newIntent(Context packageContext) {
+        return new Intent(packageContext, LoginActivity.class);
+    }
+
     @BindView(R.id.activity_login_input_username) EditText mUsernameEditText;
     @BindView(R.id.activity_login_input_password) EditText mPasswordEditText;
     @BindView(R.id.activity_login_btn_login) Button mLoginButton;
 
     private ProgressDialog mProgressDialog;
-
     private UserLoginTask mLoginTask;
 
     @Override
@@ -34,10 +42,33 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
-        mProgressDialog = new ProgressDialog(LoginActivity.this, R.style.AppTheme);
+
+        //设置全屏显示
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        );
+
+        mProgressDialog = new ProgressDialog(LoginActivity.this, R.style.AppTheme_Dark_Dialog);
         mProgressDialog.setIndeterminate(true);
         mProgressDialog.setMessage("Login...");
 
+        mLoginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                login();
+            }
+        });
+    }
+
+    @Override
+    public void onBackPressed() {
+        //防止通过点击后退回到MainActivity
+        moveTaskToBack(true);
     }
 
     @Override
@@ -47,18 +78,24 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void login() {
+        String username = mUsernameEditText.getText().toString();
+        String password = mPasswordEditText.getText().toString();
+        if (username.isEmpty() || password.isEmpty()) {
+            Toast.makeText(getApplication(), R.string.error_empty_username_or_password, Toast.LENGTH_SHORT)
+                    .show();
+            return;
+        }
         //如果登录任务还未完成，防止创建重复的登录任务
         if (mLoginTask != null) {
             return;
         }
 
-        String username = mUsernameEditText.getText().toString();
-        String password = mPasswordEditText.getText().toString();
         //点击登录按钮后应禁用按钮防止多次点击
         mLoginButton.setEnabled(false);
         mProgressDialog.show();
 
-
+        mLoginTask = new UserLoginTask();
+        mLoginTask.execute(username, password);
     }
 
     private class UserLoginTask extends AsyncTask<String, Void, LoginResult> {
@@ -114,8 +151,14 @@ public class LoginActivity extends AppCompatActivity {
                 //store username and password to shared preferences
                 String username = user.getUsername();
                 String password = loginResult.getPassword();
-                // TODO: 17-6-8 store username and password to shared preferences
+                // store username and password to shared preferences
+                SharedPreferences sp = getSharedPreferences("userInfo", Activity.MODE_PRIVATE);
+                sp.edit().putString("username", username)
+                        .putString("password", password)
+                        .apply();
 
+                setResult(Activity.RESULT_OK);
+                finish();
 
             } else if (loginResult.getStatus() == ResultStatus.NETWORK_ERROR){
                 mLoginButton.setEnabled(true);
