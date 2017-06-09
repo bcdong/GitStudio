@@ -160,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
         if (user != null) {
             Log.d(TAG, "initDrawer: user != null");
 
+
             if (user.getType().equals(getString(R.string.user_type_teacher))) {
                 drawerBuilder.addDrawerItems(
                     new PrimaryDrawerItem().withName(R.string.drawer_teacher_all_classes).withIdentifier(100),
