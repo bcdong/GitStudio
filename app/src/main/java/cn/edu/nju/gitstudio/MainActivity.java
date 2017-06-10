@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -111,6 +112,13 @@ public class MainActivity extends AppCompatActivity {
                     new SecondaryDrawerItem().withName(R.string.drawer_logout).withIdentifier(300).withSelectable(false)
             );
             mDrawer.setSelection(100, false);
+
+            //设置默认fragment
+            Fragment fragment = MyClassFragment.newInstance();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.frame_container, fragment)
+                    .commit();
+
         } else if (user.getType().equals(getString(R.string.user_type_student))) {
             mDrawer.addItems(
                     new PrimaryDrawerItem().withName(R.string.drawer_student_homework).withIdentifier(200),
@@ -120,9 +128,11 @@ public class MainActivity extends AppCompatActivity {
                     new PrimaryDrawerItem().withName(R.string.drawer_logout).withIdentifier(300).withSelectable(false)
             );
             mDrawer.setSelection(200, false);
+
+            // TODO: 17-6-9 设置默认fragment
+
         }
 
-        // TODO: 17-6-9 设置默认fragment
     }
 
     /**
@@ -195,9 +205,9 @@ public class MainActivity extends AppCompatActivity {
                 // TODO: 17-6-9 delete
                 Toast.makeText(getApplication(), ((Nameable)drawerItem).getName().getText(MainActivity.this), Toast.LENGTH_SHORT).show();
 
-
+                Fragment fragment = null;
                 if (drawerItem.getIdentifier() == 100) {            //老师-所有班级
-
+                    fragment = MyClassFragment.newInstance();
                 } else if (drawerItem.getIdentifier() == 101) {     //老师-作业
 
                 } else if (drawerItem.getIdentifier() == 102) {     //老师-练习
@@ -214,6 +224,13 @@ public class MainActivity extends AppCompatActivity {
                     logout();
                 }
 
+                if (fragment != null) {
+                    Log.d(TAG, "Replace fragment to :" + fragment);
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.frame_container, fragment)
+                            .commit();
+                }
+                mDrawer.closeDrawer();
                 return true;
             }
         });
@@ -248,6 +265,7 @@ public class MainActivity extends AppCompatActivity {
                 .apply();
         MyApplication myApplication = (MyApplication) getApplication();
         myApplication.setCurrentUser(null);
+        myApplication.setAuthToken(null);
 
         Intent intent = LoginActivity.newIntent(this);
         startActivityForResult(intent, REQUEST_LOGIN_CODE);

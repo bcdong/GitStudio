@@ -1,13 +1,22 @@
 package cn.edu.nju.gitstudio.util;
 
+import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import cn.edu.nju.gitstudio.MyApplication;
+import cn.edu.nju.gitstudio.pojo.MyClass;
 import cn.edu.nju.gitstudio.pojo.User;
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -62,7 +71,38 @@ public class NetworkHelper {
         return gson.fromJson(res, User.class);
     }
 
-    private String getRequest(String path, String authToken) throws IOException {
+    public void asyncGetClass(Activity ctx, final NetworkCallback<MyClass> callback) {
+        MyApplication myApplication = (MyApplication) ctx.getApplication();
+        String authToken = myApplication.getAuthToken();
+        String path = "/group";
+        Request.Builder builder = new Request.Builder()
+                .url(baseUrl+path);
+
+        if (authToken != null && !authToken.isEmpty()) {
+            //add authentication information to head
+            builder.header("Authorization", "Basic "+authToken);
+        }
+        Request request = builder.build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onGetFail(e);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    throw new IOException("Unexpected Code: " + response);
+                }
+                String responseJson = response.body().string();
+                Type type = new TypeToken<List<MyClass>>(){}.getType();
+                List<MyClass> myClasses = gson.fromJson(responseJson, type);
+                callback.onGetSuccess(myClasses);
+            }
+        });
+    }
+
+    private String syncGetRequest(String path, String authToken) throws IOException {
         Request.Builder builder = new Request.Builder()
                 .url(baseUrl+path);
 
