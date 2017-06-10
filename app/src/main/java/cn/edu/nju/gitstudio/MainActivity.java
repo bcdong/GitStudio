@@ -31,6 +31,7 @@ import java.io.IOException;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.edu.nju.gitstudio.pojo.User;
+import cn.edu.nju.gitstudio.type.ExerciseType;
 import cn.edu.nju.gitstudio.type.LoginResult;
 import cn.edu.nju.gitstudio.type.ResultStatus;
 import cn.edu.nju.gitstudio.util.NetworkHelper;
@@ -113,12 +114,6 @@ public class MainActivity extends AppCompatActivity {
             );
             mDrawer.setSelection(100, false);
 
-            //设置默认fragment
-            Fragment fragment = MyClassFragment.newInstance();
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.frame_container, fragment)
-                    .commit();
-
         } else if (user.getType().equals(getString(R.string.user_type_student))) {
             mDrawer.addItems(
                     new PrimaryDrawerItem().withName(R.string.drawer_student_homework).withIdentifier(200),
@@ -128,10 +123,9 @@ public class MainActivity extends AppCompatActivity {
                     new PrimaryDrawerItem().withName(R.string.drawer_logout).withIdentifier(300).withSelectable(false)
             );
             mDrawer.setSelection(200, false);
-
-            // TODO: 17-6-9 设置默认fragment
-
         }
+        //设置默认fragment
+        setDefaultFragment(user);
 
     }
 
@@ -140,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void initDrawer(Bundle savedInstanceState) {
         Log.d(TAG, "Enter method initDrawer");
+        Log.d(TAG, "savedInstance == null ? :" + (savedInstanceState == null));
         //如果已经登录则实例化drawer中的item，否则不创建item，等待登录线程登录成功后再修改drawer
         MyApplication myApplication = (MyApplication) getApplication();
         User user = myApplication.getCurrentUser();
@@ -170,7 +165,6 @@ public class MainActivity extends AppCompatActivity {
         if (user != null) {
             Log.d(TAG, "initDrawer: user != null");
 
-
             if (user.getType().equals(getString(R.string.user_type_teacher))) {
                 drawerBuilder.addDrawerItems(
                     new PrimaryDrawerItem().withName(R.string.drawer_teacher_all_classes).withIdentifier(100),
@@ -188,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
                     new PrimaryDrawerItem().withName(R.string.drawer_student_exercise).withIdentifier(201),
                     new PrimaryDrawerItem().withName(R.string.drawer_student_exam).withIdentifier(202),
                     new SectionDrawerItem().withName(R.string.drawer_about_account),
-                    new PrimaryDrawerItem().withName(R.string.drawer_student_exam).withIdentifier(300).withSelectable(false)
+                    new PrimaryDrawerItem().withName(R.string.drawer_logout).withIdentifier(300).withSelectable(false)
                 );
             }
         } else {
@@ -235,7 +229,29 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         mDrawer = drawerBuilder.build();
+        //fragment已销毁，需要重建
+        if (user != null && savedInstanceState == null) {
+            setDefaultFragment(user);
+        }
+    }
 
+    private void setDefaultFragment(User user) {
+        Fragment fragment = null;
+        if (user.getType().equals(getString(R.string.user_type_teacher))) {
+            Log.d(TAG, "set default fragment for teacher");
+            fragment = MyClassFragment.newInstance();
+
+        } else if (user.getType().equals(getString(R.string.user_type_student))) {
+            // TODO: 17-6-10
+            Log.d(TAG, "set default fragment for student");
+            fragment = ExerciseListFragment.newInstance(1, ExerciseType.HOMEWORK);
+        }
+
+        if (fragment != null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.frame_container, fragment)
+                    .commitAllowingStateLoss();
+        }
     }
 
     @Override

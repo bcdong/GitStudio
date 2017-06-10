@@ -7,6 +7,6 @@ import java.util.List;
  */
 
 public interface NetworkCallback<T> {
-    void onGetSuccess(List<T> resultList);
+    void onGetSuccess(T[] resultList);
     void onGetFail(Exception ex);
 }

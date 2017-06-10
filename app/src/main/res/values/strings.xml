@@ -26,4 +26,7 @@
     <string name="drawer_about_account">账户相关</string>
     <string name="drawer_logout">退出登录</string>
 
+    <!-- Strings of layout prompt -->
+    <string name="wave_line">~</string>
+
 </resources>

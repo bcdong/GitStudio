@@ -26,6 +26,11 @@ public class MyApplication extends Application {
     }
 
     public void setAuthToken(String authToken) {
-        this.authToken = authToken.trim();
+        if (authToken != null) {
+            this.authToken = authToken.trim();
+        }
+        else {
+            this.authToken = null;
+        }
     }
 }

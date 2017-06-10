@@ -1,20 +1,18 @@
 package cn.edu.nju.gitstudio.util;
 
 import android.app.Activity;
-import android.content.Context;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import cn.edu.nju.gitstudio.MyApplication;
+import cn.edu.nju.gitstudio.pojo.Exercise;
 import cn.edu.nju.gitstudio.pojo.MyClass;
 import cn.edu.nju.gitstudio.pojo.User;
+import cn.edu.nju.gitstudio.type.ExerciseType;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -71,18 +69,10 @@ public class NetworkHelper {
         return gson.fromJson(res, User.class);
     }
 
-    public void asyncGetClass(Activity ctx, final NetworkCallback<MyClass> callback) {
-        MyApplication myApplication = (MyApplication) ctx.getApplication();
-        String authToken = myApplication.getAuthToken();
+    public void asyncGetClass(Activity activity, final NetworkCallback<MyClass> callback) {
+        String authToken = getAuthToken(activity);
         String path = "/group";
-        Request.Builder builder = new Request.Builder()
-                .url(baseUrl+path);
-
-        if (authToken != null && !authToken.isEmpty()) {
-            //add authentication information to head
-            builder.header("Authorization", "Basic "+authToken);
-        }
-        Request request = builder.build();
+        Request request = buildGetRequest(path, authToken);
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -95,11 +85,56 @@ public class NetworkHelper {
                     throw new IOException("Unexpected Code: " + response);
                 }
                 String responseJson = response.body().string();
-                Type type = new TypeToken<List<MyClass>>(){}.getType();
-                List<MyClass> myClasses = gson.fromJson(responseJson, type);
+                MyClass[] myClasses = gson.fromJson(responseJson, MyClass[].class);
                 callback.onGetSuccess(myClasses);
             }
         });
+    }
+
+    public void asyncGetExercise(Activity activity, int courseId, ExerciseType type, final NetworkCallback<Exercise> callback) {
+        String authToken = getAuthToken(activity);
+        String path = "/course/" + courseId;
+        if (type == ExerciseType.HOMEWORK) {
+            path += "/homework";
+        } else if (type == ExerciseType.EXERCISE) {
+            path += "/exercise";
+        } else {
+            path += "/exam";
+        }
+        Request request = buildGetRequest(path, authToken);
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onGetFail(e);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    throw new IOException("Unexpected Code: " + response);
+                }
+                String responseJson = response.body().string();
+                Exercise[] exercises = gson.fromJson(responseJson, Exercise[].class);
+                callback.onGetSuccess(exercises);
+            }
+        });
+
+    }
+
+    private Request buildGetRequest(String path, String authToken) {
+        Request.Builder builder = new Request.Builder()
+                .url(baseUrl+path);
+
+        if (authToken != null && !authToken.isEmpty()) {
+            //add authentication information to head
+            builder.header("Authorization", "Basic "+authToken);
+        }
+        return builder.build();
+    }
+
+    private String getAuthToken(Activity activity) {
+        MyApplication myApplication = (MyApplication) activity.getApplication();
+        return myApplication.getAuthToken();
     }
 
     private String syncGetRequest(String path, String authToken) throws IOException {

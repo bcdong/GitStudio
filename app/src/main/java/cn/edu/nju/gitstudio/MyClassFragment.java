@@ -3,6 +3,7 @@ package cn.edu.nju.gitstudio;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -11,9 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,8 +32,7 @@ public class MyClassFragment extends Fragment {
 
     @BindView(R.id.fragment_recycler_view) RecyclerView mRecyclerView;
 
-    private List<MyClass> mMyClasses = new ArrayList<>();
-
+    private MyClass[] mMyClasses = new MyClass[0];
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,7 +41,7 @@ public class MyClassFragment extends Fragment {
 
         NetworkHelper.getInstance().asyncGetClass(getActivity(), new NetworkCallback<MyClass>() {
             @Override
-            public void onGetSuccess(List<MyClass> resultList) {
+            public void onGetSuccess(MyClass[] resultList) {
                 Log.d(TAG, "onGetSuccess");
                 mMyClasses = resultList;
                 //更新视图必须在UI线程
@@ -77,6 +74,7 @@ public class MyClassFragment extends Fragment {
         Log.d(TAG, "onCreateView in MyClassFragment");
         View view = inflater.inflate(R.layout.fragment_recycler_view, container, false);
         ButterKnife.bind(this, view);
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         updateUI();
 
@@ -93,7 +91,7 @@ public class MyClassFragment extends Fragment {
         }
     }
 
-    private class MyClassHolder extends RecyclerView.ViewHolder {
+    class MyClassHolder extends RecyclerView.ViewHolder {
         private TextView mClassNameTextView;
         private MyClass mMyClass;
 
@@ -114,10 +112,10 @@ public class MyClassFragment extends Fragment {
         }
     }
 
-    private class MyClassAdapter extends RecyclerView.Adapter<MyClassHolder> {
-        private List<MyClass> mMyClasses;
+    class MyClassAdapter extends RecyclerView.Adapter<MyClassHolder> {
+        private MyClass[] mMyClasses;
 
-        public MyClassAdapter(List<MyClass> myClasses) {
+        public MyClassAdapter(MyClass[] myClasses) {
             mMyClasses = myClasses;
         }
 
@@ -130,17 +128,14 @@ public class MyClassFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(MyClassHolder holder, int position) {
-            MyClass myClass = mMyClasses.get(position);
+            MyClass myClass = mMyClasses[position];
             holder.bindMyClass(myClass);
         }
 
         @Override
         public int getItemCount() {
-            return mMyClasses.size();
+            return mMyClasses.length;
         }
 
-        public void setMyClasses(List<MyClass> myClasses) {
-            mMyClasses = myClasses;
-        }
     }
 }
