@@ -200,26 +200,36 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplication(), ((Nameable)drawerItem).getName().getText(MainActivity.this), Toast.LENGTH_SHORT).show();
 
                 Fragment fragment = null;
+                int fragmentTitleId = -1;
                 if (drawerItem.getIdentifier() == 100) {            //老师-所有班级
+                    fragmentTitleId = R.string.drawer_teacher_all_classes;
                     fragment = MyClassFragment.newInstance();
                 } else if (drawerItem.getIdentifier() == 101) {     //老师-作业
-
+                    fragmentTitleId = R.string.drawer_teacher_homework;
+                    fragment = ExerciseListFragment.newInstance(((MyApplication)getApplication()).getCourseId(), ExerciseType.HOMEWORK);
                 } else if (drawerItem.getIdentifier() == 102) {     //老师-练习
-
+                    fragmentTitleId = R.string.drawer_teacher_exercise;
+                    fragment = ExerciseListFragment.newInstance(((MyApplication)getApplication()).getCourseId(), ExerciseType.EXERCISE);
                 } else if (drawerItem.getIdentifier() == 103) {     //老师-考试
-
+                    fragmentTitleId = R.string.drawer_teacher_exam;
+                    fragment = ExerciseListFragment.newInstance(((MyApplication)getApplication()).getCourseId(), ExerciseType.EXAM);
                 } else if (drawerItem.getIdentifier() == 200) {     //学生-作业
-
+                    fragmentTitleId = R.string.drawer_student_homework;
+                    fragment = ExerciseListFragment.newInstance(((MyApplication)getApplication()).getCourseId(), ExerciseType.HOMEWORK);
                 } else if (drawerItem.getIdentifier() == 201) {     //学生-练习
-
+                    fragmentTitleId = R.string.drawer_student_exercise;
+                    fragment = ExerciseListFragment.newInstance(((MyApplication)getApplication()).getCourseId(), ExerciseType.EXERCISE);
                 } else if (drawerItem.getIdentifier() == 202) {     //学生-考试
-
+                    fragmentTitleId = R.string.drawer_student_exam;
+                    fragment = ExerciseListFragment.newInstance(((MyApplication)getApplication()).getCourseId(), ExerciseType.EXAM);
                 } else if (drawerItem.getIdentifier() == 300) {     //退出登录
                     logout();
                 }
 
                 if (fragment != null) {
                     Log.d(TAG, "Replace fragment to :" + fragment);
+                    //change toolbar text
+                    mToolbar.setTitle(fragmentTitleId);
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.frame_container, fragment)
                             .commit();
@@ -237,17 +247,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void setDefaultFragment(User user) {
         Fragment fragment = null;
+        int fragmentTitleId = -1;
         if (user.getType().equals(getString(R.string.user_type_teacher))) {
             Log.d(TAG, "set default fragment for teacher");
             fragment = MyClassFragment.newInstance();
-
+            fragmentTitleId = R.string.drawer_teacher_all_classes;
         } else if (user.getType().equals(getString(R.string.user_type_student))) {
-            // TODO: 17-6-10
             Log.d(TAG, "set default fragment for student");
-            fragment = ExerciseListFragment.newInstance(1, ExerciseType.HOMEWORK);
+            int courseId = ((MyApplication) getApplication()).getCourseId();
+            fragment = ExerciseListFragment.newInstance(courseId, ExerciseType.HOMEWORK);
+            fragmentTitleId = R.string.drawer_student_homework;
         }
 
         if (fragment != null) {
+            mToolbar.setTitle(fragmentTitleId);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.frame_container, fragment)
                     .commitAllowingStateLoss();

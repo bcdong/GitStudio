@@ -9,25 +9,25 @@
     </style>
 
     <style name="AppTheme.Dark" parent="Theme.AppCompat.NoActionBar">
-        <item name="colorPrimary">@color/oil</item>
+        <item name="colorPrimary">@color/cyan</item>
         <item name="colorPrimaryDark">@color/jet</item>
         <item name="colorAccent">@color/white</item>
 
-        <item name="android:windowBackground">@color/oil</item>
+        <item name="android:windowBackground">@color/cyan</item>
 
-        <item name="colorControlNormal">@color/iron</item>
+        <item name="colorControlNormal">@color/jumbo</item>
         <item name="colorControlActivated">@color/white</item>
         <item name="colorControlHighlight">@color/white</item>
-        <item name="android:textColorHint">@color/iron</item>
+        <item name="android:textColorHint">@color/jumbo</item>
 
-        <item name="colorButtonNormal">@color/light_lue</item>
-        <item name="android:colorButtonNormal">@color/light_lue</item>
+        <item name="colorButtonNormal">@color/md_lime_300</item>
+        <item name="android:colorButtonNormal">@color/md_lime_300</item>
     </style>
 
     <style name="AppTheme.Dark.Dialog" parent="Theme.AppCompat.Dialog">
         <item name="colorAccent">@color/white</item>
         <item name="android:textColorPrimary">@color/iron</item>
-        <item name="android:background">@color/oil</item>
+        <item name="android:background">@color/md_cyan_200</item>
     </style>
 
 </resources>

@@ -12,6 +12,14 @@ import cn.edu.nju.gitstudio.pojo.User;
 public class MyApplication extends Application {
     private User currentUser;
     private String authToken;
+    //软工一课程ID默认为1
+    private int courseId;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        courseId = 1;
+    }
 
     public User getCurrentUser() {
         return currentUser;
@@ -32,5 +40,13 @@ public class MyApplication extends Application {
         else {
             this.authToken = null;
         }
+    }
+
+    public int getCourseId() {
+        return courseId;
+    }
+
+    public void setCourseId(int courseId) {
+        this.courseId = courseId;
     }
 }
