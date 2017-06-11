@@ -69,7 +69,7 @@ public class NetworkHelper {
         return gson.fromJson(res, User.class);
     }
 
-    public void asyncGetClass(Activity activity, final NetworkCallback<MyClass> callback) {
+    public void asyncGetClass(final Activity activity, final NetworkCallback<MyClass> callback) {
         String authToken = getAuthToken(activity);
         String path = "/group";
         Request request = buildGetRequest(path, authToken);
@@ -82,16 +82,41 @@ public class NetworkHelper {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) {
-                    throw new IOException("Unexpected Code: " + response);
+//                    throw new IOException("Unexpected Code: " + response);
+                    onFailure(call, new IOException("Unexpected Code: " + response));
+                } else {
+                    String responseJson = response.body().string();
+                    MyClass[] myClasses = gson.fromJson(responseJson, MyClass[].class);
+                    callback.onGetSuccess(myClasses);
                 }
-                String responseJson = response.body().string();
-                MyClass[] myClasses = gson.fromJson(responseJson, MyClass[].class);
-                callback.onGetSuccess(myClasses);
             }
         });
     }
 
-    public void asyncGetExercise(Activity activity, int courseId, ExerciseType type, final NetworkCallback<Exercise> callback) {
+    public void asyncGetStudent(final Activity activity, int groupId, final NetworkCallback<User> callback) {
+        String authToken = getAuthToken(activity);
+        String path = "/group/" + groupId + "/students";
+        Request request = buildGetRequest(path, authToken);
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onGetFail(e);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    onFailure(call, new IOException("Unexpected Code: " + response));
+                } else {
+                    String responseJson = response.body().string();
+                    User[] students = gson.fromJson(responseJson, User[].class);
+                    callback.onGetSuccess(students);
+                }
+            }
+        });
+    }
+
+    public void asyncGetExercise(final Activity activity, int courseId, ExerciseType type, final NetworkCallback<Exercise> callback) {
         String authToken = getAuthToken(activity);
         String path = "/course/" + courseId;
         if (type == ExerciseType.HOMEWORK) {
@@ -111,11 +136,13 @@ public class NetworkHelper {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) {
-                    throw new IOException("Unexpected Code: " + response);
+//                    throw new IOException("Unexpected Code: " + response);
+                    onFailure(call, new IOException("Unexpected Code: " + response));
+                } else {
+                    String responseJson = response.body().string();
+                    Exercise[] exercises = gson.fromJson(responseJson, Exercise[].class);
+                    callback.onGetSuccess(exercises);
                 }
-                String responseJson = response.body().string();
-                Exercise[] exercises = gson.fromJson(responseJson, Exercise[].class);
-                callback.onGetSuccess(exercises);
             }
         });
 
@@ -132,7 +159,7 @@ public class NetworkHelper {
         return builder.build();
     }
 
-    private String getAuthToken(Activity activity) {
+    private String getAuthToken(final Activity activity) {
         MyApplication myApplication = (MyApplication) activity.getApplication();
         return myApplication.getAuthToken();
     }

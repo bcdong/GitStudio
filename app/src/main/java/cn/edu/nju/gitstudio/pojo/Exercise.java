@@ -1,5 +1,6 @@
 package cn.edu.nju.gitstudio.pojo;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -31,7 +32,7 @@ import java.util.List;
  }
  */
 
-public class Exercise {
+public class Exercise implements Serializable {
     private int id;
     private String title;
     private String description;

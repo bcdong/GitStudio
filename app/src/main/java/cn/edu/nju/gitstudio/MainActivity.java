@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final int REQUEST_LOGIN_CODE = 0;
 
-    @BindView(R.id.toolbar) Toolbar mToolbar;
+    @BindView(R.id.activity_main_toolbar) Toolbar mToolbar;
 
     private AccountHeader mAccountHeader;
     private Drawer mDrawer;
@@ -231,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
                     //change toolbar text
                     mToolbar.setTitle(fragmentTitleId);
                     getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.frame_container, fragment)
+                            .replace(R.id.activity_main_frame_container, fragment)
                             .commit();
                 }
                 mDrawer.closeDrawer();
@@ -262,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
         if (fragment != null) {
             mToolbar.setTitle(fragmentTitleId);
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.frame_container, fragment)
+                    .replace(R.id.activity_main_frame_container, fragment)
                     .commitAllowingStateLoss();
         }
     }

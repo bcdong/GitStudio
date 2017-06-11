@@ -1,10 +1,12 @@
 package cn.edu.nju.gitstudio.pojo;
 
+import java.io.Serializable;
+
 /**
  * 此类是“班级”的pojo类，不是java中的class
  */
 
-public class MyClass {
+public class MyClass implements Serializable{
     private int id;
     private String name;
 

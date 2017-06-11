@@ -7,9 +7,9 @@
     <string name="prompt_btn_login">Login</string>
 
     <!-- Strings related to error prompt -->
-    <string name="error_incorrect_password">Username or password is incorrect</string>
-    <string name="error_empty_username_or_password">Username and password can not be empty</string>
-    <string name="error_network_fail">Network failed</string>
+    <string name="error_incorrect_password">用户名或密码错误</string>
+    <string name="error_empty_username_or_password">用户名和密码不能为空</string>
+    <string name="error_network_fail">网络请求失败</string>
 
     <!-- Strings of user type -->
     <string name="user_type_teacher">teacher</string>

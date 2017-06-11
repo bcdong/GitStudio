@@ -1,5 +1,6 @@
 package cn.edu.nju.gitstudio;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -95,27 +96,29 @@ public class MyClassFragment extends Fragment {
         private TextView mClassNameTextView;
         private MyClass mMyClass;
 
-        public MyClassHolder(View itemView) {
+        MyClassHolder(View itemView) {
             super(itemView);
             mClassNameTextView = (TextView) itemView;
             mClassNameTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     // TODO: 17-6-10 查看一个班级的所有学生，需要另一个activity
+                    Intent intent = StudentListActivity.newIntent(getActivity(), mMyClass.getName(), mMyClass.getId());
+                    startActivity(intent);
                 }
             });
         }
 
-        public void bindMyClass(MyClass myClass) {
+        void bindMyClass(MyClass myClass) {
             mMyClass = myClass;
             mClassNameTextView.setText(mMyClass.getName());
         }
     }
 
-    class MyClassAdapter extends RecyclerView.Adapter<MyClassHolder> {
+    private class MyClassAdapter extends RecyclerView.Adapter<MyClassHolder> {
         private MyClass[] mMyClasses;
 
-        public MyClassAdapter(MyClass[] myClasses) {
+        MyClassAdapter(MyClass[] myClasses) {
             mMyClasses = myClasses;
         }
 

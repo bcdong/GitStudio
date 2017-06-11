@@ -101,12 +101,12 @@ public class ExerciseListFragment extends Fragment {
         @BindView(R.id.exercise_item_start_time) TextView mStartTimeView;
         @BindView(R.id.exercise_item_end_time) TextView mEndTimeView;
 
-        public ExerciseHolder(View itemView) {
+        ExerciseHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
 
-        public void bindExercise(Exercise exercise) {
+        void bindExercise(Exercise exercise) {
             mExercise = exercise;
             mTitleView.setText(exercise.getTitle());
             String startTime = mExercise.getStartAt();
@@ -117,10 +117,10 @@ public class ExerciseListFragment extends Fragment {
         }
     }
 
-    class ExerciseAdapter extends RecyclerView.Adapter<ExerciseHolder> {
+    private class ExerciseAdapter extends RecyclerView.Adapter<ExerciseHolder> {
         private Exercise[] mExercises;
 
-        public ExerciseAdapter(Exercise[] exercises) {
+        ExerciseAdapter(Exercise[] exercises) {
             mExercises = exercises;
         }
 

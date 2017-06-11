@@ -1,5 +1,7 @@
 package cn.edu.nju.gitstudio.pojo;
 
+import java.io.Serializable;
+
 /**
  * Created by mrzero on 17-6-8.
  * 示例：
@@ -19,7 +21,7 @@ package cn.edu.nju.gitstudio.pojo;
  }
  */
 
-public class User {
+public class User implements Serializable{
     private int id;
     private String username;
     private String name;

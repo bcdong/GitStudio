@@ -1,5 +1,7 @@
 package cn.edu.nju.gitstudio.pojo;
 
+import java.io.Serializable;
+
 /**
  * Created by mrzero on 17-6-8.
  * 示例：
@@ -25,7 +27,7 @@ package cn.edu.nju.gitstudio.pojo;
  "knowledgeVos": null
  }
  */
-public class Question {
+public class Question implements Serializable{
     private int id;
     private String title;
     private String description;
