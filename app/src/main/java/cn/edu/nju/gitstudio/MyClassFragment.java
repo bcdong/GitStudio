@@ -102,7 +102,6 @@ public class MyClassFragment extends Fragment {
             mClassNameTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // TODO: 17-6-10 查看一个班级的所有学生，需要另一个activity
                     Intent intent = StudentListActivity.newIntent(getActivity(), mMyClass.getName(), mMyClass.getId());
                     startActivity(intent);
                 }

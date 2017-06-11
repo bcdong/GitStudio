@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -39,6 +40,7 @@ import cn.edu.nju.gitstudio.util.NetworkHelper;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final int REQUEST_LOGIN_CODE = 0;
+    private static final String TOOLBAR_TEXT = "MainActivity.ToolbarText";
 
     @BindView(R.id.activity_main_toolbar) Toolbar mToolbar;
 
@@ -196,9 +198,6 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 }
 
-                // TODO: 17-6-9 delete
-                Toast.makeText(getApplication(), ((Nameable)drawerItem).getName().getText(MainActivity.this), Toast.LENGTH_SHORT).show();
-
                 Fragment fragment = null;
                 int fragmentTitleId = -1;
                 if (drawerItem.getIdentifier() == 100) {            //老师-所有班级
@@ -229,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
                 if (fragment != null) {
                     Log.d(TAG, "Replace fragment to :" + fragment);
                     //change toolbar text
-                    mToolbar.setTitle(fragmentTitleId);
+                    getSupportActionBar().setTitle(fragmentTitleId);
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.activity_main_frame_container, fragment)
                             .commit();
@@ -260,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (fragment != null) {
-            mToolbar.setTitle(fragmentTitleId);
+            getSupportActionBar().setTitle(fragmentTitleId);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.activity_main_frame_container, fragment)
                     .commitAllowingStateLoss();
@@ -274,7 +273,20 @@ public class MainActivity extends AppCompatActivity {
             outState = mDrawer.saveInstanceState(outState);
             outState = mAccountHeader.saveInstanceState(outState);
         }
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            outState.putCharSequence(TOOLBAR_TEXT, actionBar.getTitle());
+        }
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null && savedInstanceState.containsKey(TOOLBAR_TEXT)) {
+            actionBar.setTitle(savedInstanceState.getCharSequence(TOOLBAR_TEXT));
+        }
     }
 
     @Override

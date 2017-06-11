@@ -28,5 +28,20 @@
 
     <!-- Strings of layout prompt -->
     <string name="wave_line">~</string>
+    <string name="description">描述：</string>
+    <string name="time">时间：</string>
+    <string name="status">状态：</string>
+    <string name="check_exercise_score">查看学生成绩</string>
+    <string name="check_exercise_analyze">查看结果分析</string>
+
+    <!-- Strings of exercise status -->
+    <string name="exercise_status_newly">新建态</string>
+    <string name="exercise_status_initing">正在初始化</string>
+    <string name="exercise_status_initFail">初始化失败</string>
+    <string name="exercise_status_initSuccess">初始化成功</string>
+    <string name="exercise_status_ongoing">正在进行</string>
+    <string name="exercise_status_timeup">时间到</string>
+    <string name="exercise_status_analyzing">正在分析结果</string>
+    <string name="exercise_status_analyzingFinish">结果分析完毕</string>
 
 </resources>

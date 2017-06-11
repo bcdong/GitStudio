@@ -1,5 +1,6 @@
 package cn.edu.nju.gitstudio;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -104,6 +105,14 @@ public class ExerciseListFragment extends Fragment {
         ExerciseHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //查看练习详情
+                    Intent intent = ExerciseDetailActivity.newIntent(getActivity(), mExercise);
+                    startActivity(intent);
+                }
+            });
         }
 
         void bindExercise(Exercise exercise) {

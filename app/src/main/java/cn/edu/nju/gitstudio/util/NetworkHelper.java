@@ -164,23 +164,6 @@ public class NetworkHelper {
         return myApplication.getAuthToken();
     }
 
-    private String syncGetRequest(String path, String authToken) throws IOException {
-        Request.Builder builder = new Request.Builder()
-                .url(baseUrl+path);
-
-        if (authToken != null && !authToken.isEmpty()) {
-            //add authentication information to head
-            builder.header("Authorization", "Basic "+authToken);
-        }
-        Request request = builder.build();
-        Response response = client.newCall(request).execute();
-        if (response.isSuccessful()) {
-            return response.body().string();
-        } else {
-            throw new IOException("Unexpected code " + response);
-        }
-    }
-
     private String postRequest(String path, String requestBody) throws IOException {
         RequestBody body = RequestBody.create(JSON, requestBody);
         Request request = new Request.Builder()
