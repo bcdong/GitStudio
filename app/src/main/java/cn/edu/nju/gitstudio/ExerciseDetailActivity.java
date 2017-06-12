@@ -64,7 +64,7 @@ public class ExerciseDetailActivity extends AppCompatActivity {
             mAnalyzeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //启动查看分数activity
+                    //TODO 启动查看分数activity
                 }
             });
 
@@ -74,7 +74,7 @@ public class ExerciseDetailActivity extends AppCompatActivity {
             mAnalyzeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //启动练习结果分析activity
+                    // TODO 启动练习结果分析activity
                 }
             });
         }

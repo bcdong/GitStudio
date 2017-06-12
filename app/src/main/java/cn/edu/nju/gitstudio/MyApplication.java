@@ -1,12 +1,11 @@
 package cn.edu.nju.gitstudio;
 
 import android.app.Application;
-import android.util.Base64;
 
 import cn.edu.nju.gitstudio.pojo.User;
 
 /**
- * Created by mrzero on 17-6-8.
+ * 存放全局变量的作用域
  */
 
 public class MyApplication extends Application {
