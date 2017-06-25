@@ -61,10 +61,10 @@ public class StudentListActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
-        updateUI();
-
         if (savedInstanceState == null || !savedInstanceState.containsKey(BUNDLE_STUDENTS)) {
             Log.d(TAG, "onCreate & do not has previous students");
+            updateUI();
+
             //发起网络请求
             int groupId = getIntent().getIntExtra(EXTRA_GROUP_ID, 1);
             NetworkHelper.getInstance().asyncGetStudent(this, groupId, new NetworkCallback<User>() {

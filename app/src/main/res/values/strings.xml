@@ -44,4 +44,13 @@
     <string name="exercise_status_analyzing">正在分析结果</string>
     <string name="exercise_status_analyzingFinish">结果分析完毕</string>
 
+    <!-- Strings of question score -->
+    <string name="score_item_question_title">question title</string>
+    <string name="score_item_score_interval">分数段</string>
+    <string name="score_item_0_60">0~60</string>
+    <string name="score_item_60_80">60~80</string>
+    <string name="score_item_80_90">80~90</string>
+    <string name="score_item_90_100">90~100</string>
+    <string name="score_item_student_count">人数</string>
+
 </resources>

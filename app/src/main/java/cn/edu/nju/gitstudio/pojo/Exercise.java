@@ -38,7 +38,7 @@ public class Exercise implements Serializable {
     private String description;
     private String startAt;
     private String endAt;
-    private List<Question> questions;
+    private Question[] questions;
     private int course;
     private String status;
     private String currentTime;
@@ -83,11 +83,11 @@ public class Exercise implements Serializable {
         this.endAt = endAt;
     }
 
-    public List<Question> getQuestions() {
+    public Question[] getQuestions() {
         return questions;
     }
 
-    public void setQuestions(List<Question> questions) {
+    public void setQuestions(Question[] questions) {
         this.questions = questions;
     }
 

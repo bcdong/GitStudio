@@ -5,12 +5,17 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import cn.edu.nju.gitstudio.MyApplication;
 import cn.edu.nju.gitstudio.pojo.Exercise;
 import cn.edu.nju.gitstudio.pojo.MyClass;
+import cn.edu.nju.gitstudio.pojo.QuestionScoreInterval;
 import cn.edu.nju.gitstudio.pojo.User;
 import cn.edu.nju.gitstudio.type.ExerciseType;
 import okhttp3.Call;
@@ -83,7 +88,7 @@ public class NetworkHelper {
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) {
 //                    throw new IOException("Unexpected Code: " + response);
-                    onFailure(call, new IOException("Unexpected Code: " + response));
+                    onFailure(call, new IOException("asyncGetClass Error: " + response));
                 } else {
                     String responseJson = response.body().string();
                     MyClass[] myClasses = gson.fromJson(responseJson, MyClass[].class);
@@ -106,7 +111,7 @@ public class NetworkHelper {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) {
-                    onFailure(call, new IOException("Unexpected Code: " + response));
+                    onFailure(call, new IOException("asyncGetStudent Error: " + response));
                 } else {
                     String responseJson = response.body().string();
                     User[] students = gson.fromJson(responseJson, User[].class);
@@ -137,7 +142,7 @@ public class NetworkHelper {
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) {
 //                    throw new IOException("Unexpected Code: " + response);
-                    onFailure(call, new IOException("Unexpected Code: " + response));
+                    onFailure(call, new IOException("asyncGetExercise Error: " + response));
                 } else {
                     String responseJson = response.body().string();
                     Exercise[] exercises = gson.fromJson(responseJson, Exercise[].class);
@@ -146,6 +151,58 @@ public class NetworkHelper {
             }
         });
 
+    }
+
+    public void asyncGetScoreResult(final Activity activity, int assignmentId, final NetworkCallback<QuestionScoreInterval> callback) {
+        String authToken = getAuthToken(activity);
+        String path = "/assignment/"+assignmentId+"/score";
+        Request request = buildGetRequest(path, authToken);
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onGetFail(e);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!response.isSuccessful()){
+                    onFailure(call, new IOException("asyncGetScoreResult Error: " + response));
+                } else {
+                    QuestionScoreInterval[] scoreIntervals = new QuestionScoreInterval[0];
+                    //获取完考试结果后需要对不同分数段的人数进行统计
+                    String responseJson = response.body().string();
+                    try {
+                        JSONObject jsonObject = new JSONObject(responseJson);
+                        JSONArray questions = jsonObject.getJSONArray("questions");
+                        scoreIntervals = new QuestionScoreInterval[questions.length()];
+                        for (int i=0; i<questions.length();++i){
+                            JSONObject question = questions.getJSONObject(i);
+                            String questionTitle = question.getJSONObject("questionInfo").getString("title");
+                            int[] peopleCount = {0, 0, 0, 0};
+                            JSONArray students = question.getJSONArray("students");
+                            for (int j=0; j<students.length(); ++j){
+                                int score = students.getJSONObject(j).getInt("score");
+                                if (score < 60){
+                                    ++ peopleCount[0];
+                                } else if (score < 80){
+                                    ++ peopleCount[1];
+                                } else if (score < 90){
+                                    ++ peopleCount[2];
+                                } else {
+                                    ++ peopleCount[3];
+                                }
+                            }
+                            scoreIntervals[i] = new QuestionScoreInterval(questionTitle, peopleCount);
+                        }
+                        Log.d(TAG, "The count of questions is: " + scoreIntervals.length);
+                    } catch (JSONException e) {
+                        //json解析错误
+                        e.printStackTrace();
+                    }
+                    callback.onGetSuccess(scoreIntervals);
+                }
+            }
+        });
     }
 
     private Request buildGetRequest(String path, String authToken) {
