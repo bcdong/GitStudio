@@ -75,7 +75,8 @@ public class ExerciseDetailActivity extends AppCompatActivity {
             mAnalyzeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // TODO 启动练习结果分析activity
+                    Intent intent = TestCaseActivity.newIntent(ExerciseDetailActivity.this, mExercise.getId(), mExercise.getTitle());
+                    startActivity(intent);
                 }
             });
         }

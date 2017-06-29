@@ -16,6 +16,8 @@ import cn.edu.nju.gitstudio.MyApplication;
 import cn.edu.nju.gitstudio.pojo.Exercise;
 import cn.edu.nju.gitstudio.pojo.MyClass;
 import cn.edu.nju.gitstudio.pojo.QuestionScoreInterval;
+import cn.edu.nju.gitstudio.pojo.TestCase;
+import cn.edu.nju.gitstudio.pojo.TestCaseResult;
 import cn.edu.nju.gitstudio.pojo.User;
 import cn.edu.nju.gitstudio.type.ExerciseType;
 import okhttp3.Call;
@@ -88,7 +90,7 @@ public class NetworkHelper {
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) {
 //                    throw new IOException("Unexpected Code: " + response);
-                    onFailure(call, new IOException("asyncGetClass Error: " + response));
+                    callback.onGetFail(new IOException("asyncGetClass Error: " + response));
                 } else {
                     String responseJson = response.body().string();
                     MyClass[] myClasses = gson.fromJson(responseJson, MyClass[].class);
@@ -111,7 +113,7 @@ public class NetworkHelper {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) {
-                    onFailure(call, new IOException("asyncGetStudent Error: " + response));
+                    callback.onGetFail(new IOException("asyncGetStudent Error: " + response));
                 } else {
                     String responseJson = response.body().string();
                     User[] students = gson.fromJson(responseJson, User[].class);
@@ -142,7 +144,7 @@ public class NetworkHelper {
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) {
 //                    throw new IOException("Unexpected Code: " + response);
-                    onFailure(call, new IOException("asyncGetExercise Error: " + response));
+                    callback.onGetFail(new IOException("asyncGetExercise Error: " + response));
                 } else {
                     String responseJson = response.body().string();
                     Exercise[] exercises = gson.fromJson(responseJson, Exercise[].class);
@@ -166,7 +168,7 @@ public class NetworkHelper {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()){
-                    onFailure(call, new IOException("asyncGetScoreResult Error: " + response));
+                    callback.onGetFail(new IOException("asyncGetScoreResult Error: " + response));
                 } else {
                     QuestionScoreInterval[] scoreIntervals = new QuestionScoreInterval[0];
                     //获取完考试结果后需要对不同分数段的人数进行统计
@@ -200,6 +202,70 @@ public class NetworkHelper {
                         e.printStackTrace();
                     }
                     callback.onGetSuccess(scoreIntervals);
+                }
+            }
+        });
+    }
+
+    public void asyncGetTestCaseResult(Activity activity, int assignmentId, int studentId, final NetworkCallback<TestCaseResult> callback){
+        String authToken = getAuthToken(activity);
+
+        // TODO: 17-6-29 由于目前接口只有229号学生有数据，而登录者nanguangtailang是64号，为了测试先用229号显示数据
+        studentId = 229;
+        
+        String path = "/assignment/"+assignmentId+"/student/"+studentId+"/analysis";
+        Request request = buildGetRequest(path, authToken);
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onGetFail(e);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!response.isSuccessful()){
+                    callback.onGetFail(new IOException("asyncGetTestCaseResult Error: "+response));
+                } else {
+                    TestCaseResult[] results = new TestCaseResult[0];
+                    String responseJson = response.body().string();
+                    try {
+                        JSONObject jsonObject = new JSONObject(responseJson);
+                        JSONArray questionResults = jsonObject.getJSONArray("questionResults");
+                        results = new TestCaseResult[questionResults.length()];
+                        for (int i=0; i<questionResults.length(); ++i){
+                            TestCaseResult result = new TestCaseResult();
+                            JSONObject questionObj = questionResults.getJSONObject(i);
+                            result.setQuestionId(questionObj.getInt("questionId"));
+                            result.setQuestionTitle(questionObj.getString("questionTitle"));
+
+                            JSONObject scoreResult = questionObj.getJSONObject("scoreResult");
+                            result.setScore(scoreResult.getInt("score"));
+
+                            JSONObject testResult = questionObj.getJSONObject("testResult");
+                            result.setCompile_succeeded(testResult.getBoolean("compile_succeeded"));
+                            result.setTested(testResult.getBoolean("tested"));
+                            TestCase[] testCaseList;
+                            if (!testResult.isNull("testcases")){
+                                // TODO: 17-6-29 接口再此处不完善，这里可能抛异常，注意检查此处
+                                JSONArray testcases = testResult.getJSONArray("testcases");
+                                testCaseList = new TestCase[testcases.length()];
+                                for (int j=0; j<testcases.length(); ++j){
+                                    JSONObject testcase = testcases.getJSONObject(j);
+                                    String name =testcase.getString("name");
+                                    boolean passed = testcase.getBoolean("passed");
+                                    testCaseList[j] = new TestCase(name, passed);
+                                }
+                            } else {
+                                testCaseList = new TestCase[0];
+                            }
+                            result.setTestCases(testCaseList);
+
+                            results[i] = result;
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    callback.onGetSuccess(results);
                 }
             }
         });
