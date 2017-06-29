@@ -137,7 +137,8 @@ public class TestCaseActivity extends AppCompatActivity {
             detailButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // TODO: 17-6-29 test case detail
+                    Intent intent = TestCaseDetailActivity.newIntent(TestCaseActivity.this, testResult.getQuestionTitle(), testResult.getTestCases());
+                    startActivity(intent);
                 }
             });
         }

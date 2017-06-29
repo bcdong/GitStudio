@@ -246,7 +246,7 @@ public class NetworkHelper {
                             result.setTested(testResult.getBoolean("tested"));
                             TestCase[] testCaseList;
                             if (!testResult.isNull("testcases")){
-                                // TODO: 17-6-29 接口再此处不完善，这里可能抛异常，注意检查此处
+                                // TODO: 17-6-29 接口在此处不完善，这里可能抛异常，注意检查此处
                                 JSONArray testcases = testResult.getJSONArray("testcases");
                                 testCaseList = new TestCase[testcases.length()];
                                 for (int j=0; j<testcases.length(); ++j){
