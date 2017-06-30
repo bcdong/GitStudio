@@ -62,11 +62,30 @@
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         tools:text="练习状态"/>
 
-    <Button
-        android:id="@+id/activity_exercise_detail_analyze_button"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        android:layout_marginRight="@dimen/activity_horizontal_margin"/>
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/activity_exercise_detail_question_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="4dp"
+            android:text="@string/exercise_detail_question_list"/>
+
+        <Button
+            android:id="@+id/activity_exercise_detail_analyze_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="16dp"/>
+
+    </LinearLayout>
+
+
 
 </LinearLayout>

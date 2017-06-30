@@ -30,6 +30,7 @@ public class ExerciseDetailActivity extends AppCompatActivity {
     @BindView(R.id.activity_exercise_detail_description_text) TextView mDescriptionTextView;
     @BindView(R.id.activity_exercise_detail_time_text) TextView mTimeTextView;
     @BindView(R.id.activity_exercise_detail_status_text) TextView mStatusTextView;
+    @BindView(R.id.activity_exercise_detail_question_button) Button mQuestionButton;
     @BindView(R.id.activity_exercise_detail_analyze_button) Button mAnalyzeButton;
 
     @Override
@@ -41,6 +42,13 @@ public class ExerciseDetailActivity extends AppCompatActivity {
         mExercise = (Exercise) getIntent().getSerializableExtra(EXTRA_EXERCISE);
 
         updateUI();
+        mQuestionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = QuestionListActivity.newIntent(ExerciseDetailActivity.this, mExercise.getId(), mExercise.getTitle(), mExercise.getQuestions());
+                startActivity(intent);
+            }
+        });
         setupAnalyzeButton();
     }
 

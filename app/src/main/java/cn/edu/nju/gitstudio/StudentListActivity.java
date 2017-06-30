@@ -18,6 +18,7 @@ import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.edu.nju.gitstudio.pojo.User;
+import cn.edu.nju.gitstudio.util.MyRecyclerView;
 import cn.edu.nju.gitstudio.util.NetworkCallback;
 import cn.edu.nju.gitstudio.util.NetworkHelper;
 
@@ -41,7 +42,8 @@ public class StudentListActivity extends AppCompatActivity {
     }
 
     @BindView(R.id.activity_student_list_toolbar) Toolbar mToolbar;
-    @BindView(R.id.activity_student_list_recycler_view) RecyclerView mRecyclerView;
+    @BindView(R.id.activity_student_list_recycler_view) MyRecyclerView mRecyclerView;
+    @BindView(R.id.activity_student_list_empty_view) TextView emptyView;
 
     private User[] mStudents = new User[0];
 
@@ -60,6 +62,7 @@ public class StudentListActivity extends AppCompatActivity {
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        mRecyclerView.setEmptyView(emptyView);
 
         if (savedInstanceState == null || !savedInstanceState.containsKey(BUNDLE_STUDENTS)) {
             Log.d(TAG, "onCreate & do not has previous students");

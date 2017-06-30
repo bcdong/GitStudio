@@ -18,6 +18,7 @@ import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.edu.nju.gitstudio.pojo.QuestionScoreInterval;
+import cn.edu.nju.gitstudio.util.MyRecyclerView;
 import cn.edu.nju.gitstudio.util.NetworkCallback;
 import cn.edu.nju.gitstudio.util.NetworkHelper;
 
@@ -35,7 +36,8 @@ public class ScoreActivity extends AppCompatActivity {
     }
 
     @BindView(R.id.activity_score_toolbar) Toolbar mToolbar;
-    @BindView(R.id.activity_score_recycler_view) RecyclerView mRecyclerView;
+    @BindView(R.id.activity_score_recycler_view) MyRecyclerView mRecyclerView;
+    @BindView(R.id.activity_score_empty_view) TextView emptyView;
 
     private QuestionScoreInterval[] mScoreResults = new QuestionScoreInterval[0];
 
@@ -53,6 +55,7 @@ public class ScoreActivity extends AppCompatActivity {
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        mRecyclerView.setEmptyView(emptyView);
 
         if (savedInstanceState == null || !savedInstanceState.containsKey(BUNDLE_SCORE_RESULTS)) {
             Log.d(TAG, "onCreate & do not has previous score results");
