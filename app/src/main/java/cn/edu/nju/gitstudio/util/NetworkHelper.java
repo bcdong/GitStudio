@@ -27,6 +27,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 /**
  * 处理网络请求
@@ -246,7 +247,6 @@ public class NetworkHelper {
                             result.setTested(testResult.getBoolean("tested"));
                             TestCase[] testCaseList;
                             if (!testResult.isNull("testcases")){
-                                // TODO: 17-6-29 接口在此处不完善，这里可能抛异常，注意检查此处
                                 JSONArray testcases = testResult.getJSONArray("testcases");
                                 testCaseList = new TestCase[testcases.length()];
                                 for (int j=0; j<testcases.length(); ++j){
@@ -269,6 +269,47 @@ public class NetworkHelper {
                 }
             }
         });
+    }
+
+    public void asyncGetReadMe(final Activity activity, int assignmentId, int studentId, int questionId, final NetworkCallback<String> callback){
+        String authToken = getAuthToken(activity);
+        // TODO: 17-6-29 由于目前接口只有  /assignment/98/student/227/question/26  有数据，而登录者nanguangtailang是64号，为了测试先用227号显示数据
+        studentId = 227;
+        assignmentId = 98;
+        questionId = 26;
+
+        String path = "/assignment/"+assignmentId+"/student/"+studentId+"/question/"+questionId;
+        final Request request = buildGetRequest(path, authToken);
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onGetFail(e);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!response.isSuccessful()){
+                    callback.onGetFail(new IOException("asyncGetReadMe Error: "+response));
+                } else {
+                    ResponseBody body = response.body();
+                    String[] contents = new String[1];
+                    contents[0] = "无ReadMe文件";
+                    if (body != null){
+                        String responseJson = body.string();
+                        if (responseJson != null && !responseJson.trim().isEmpty()){
+                            try {
+                                JSONObject jsonObject = new JSONObject(responseJson);
+                                contents[0] = jsonObject.getString("content");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    callback.onGetSuccess(contents);
+                }
+            }
+        });
+
     }
 
     private Request buildGetRequest(String path, String authToken) {

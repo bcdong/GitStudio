@@ -79,7 +79,9 @@ public class QuestionListActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     //查看readme文件
-
+                    int userId = ((MyApplication) getApplication()).getCurrentUser().getId();
+                    Intent intent = ReadMeActivity.newIntent(QuestionListActivity.this, exerciseId, userId, mQuestion.getId(), mQuestion.getTitle());
+                    startActivity(intent);
                 }
             });
         }

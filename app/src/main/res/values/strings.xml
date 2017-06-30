@@ -66,4 +66,6 @@
     <string name="exercise_analyse_empty_tip">分析结果为空</string>
     <string name="student_list_empty_tip">学生列表为空</string>
 
+    <string name="read_me_loading">加载中...</string>
+
 </resources>
